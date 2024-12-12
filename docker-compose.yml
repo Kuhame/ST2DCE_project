@@ -1,0 +1,7 @@
+services:
+  golang_app:
+    image: "awonyu9/st2dce_app:latest"
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
