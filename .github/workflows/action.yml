@@ -1,0 +1,40 @@
+name: CI/CD Pipeline for Minikube
+
+on:
+  - pull_request
+  - workflow_dispatch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set kubeconfig
+      env:
+        KUBECONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+      run: |
+        echo "$KUBECONFIG_DATA" | base64 -d > ~/.kube/config
+        chmod 600 ~/.kube/config
+
+    - name: Deploy to Development
+      uses: azure/k8s-deploy@v4
+      with:
+        manifests: |
+          ./deployment-dev.yaml
+        namespace: development
+
+    - name: Test Development Environment
+      run: |
+        SERVICE_URL=$(minikube service golang-app-service -n development --url)
+        curl -f $SERVICE_URL || exit 1
+
+    - name: Deploy to Production
+      if: success()
+      uses: azure/k8s-deploy@v4
+      with:
+        manifests: |
+          ./deployment-prod.yaml
+        namespace: production
