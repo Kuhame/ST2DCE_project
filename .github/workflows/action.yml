@@ -13,12 +13,11 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set kubeconfig
-      env:
-        KUBECONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
-      run: |
-        echo "$KUBECONFIG_DATA" | base64 -d > ~/.kube/config
-        chmod 600 ~/.kube/config
-
+      uses: azure/k8s-set-context@v4
+      with: 
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+        
     - name: Deploy to Development
       uses: azure/k8s-deploy@v4
       with:
