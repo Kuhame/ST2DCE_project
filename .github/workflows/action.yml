@@ -12,11 +12,13 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
+    - name: Start Kubernetes minikube
+      uses: medyagh/setup-minikube@master
+
     - name: Set kubeconfig
       env:
         KUBECONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
       run: |
-        mkdir -p ~/.kube  # Ensure the .kube directory exists
         echo "$KUBECONFIG_DATA" | base64 -d > ~/.kube/config
         chmod 600 ~/.kube/config
 
